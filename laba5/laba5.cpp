@@ -4,12 +4,11 @@
 #include<functional> 
 
 // Вспомогателььные функции
-int check_file(std::ifstream& file);
+bool isFileWithContent(std::ifstream& file);
 void ending(int n);
 template <typename T, typename Predicat>
 void Read_and_check(T& x, std::istream& stream, Predicat condition, const char* message);
-int GetRandomInInterval(int a, int b);
-bool fileInput(std::ifstream& file);
+int getRandomInInterval(int a, int b);
 void print(int* arr, int size, const char* message);
 void preamb(short choice, std::ifstream& file, int& size);
 
@@ -25,7 +24,7 @@ void fill(int* begin, int* end, int A, int B);
 bool task1(int* begin, int* end, int& product, std::function<bool(int)> predicate);
 
 // TASK2 Вычислить сумму элементов массива, расположенных до первого минимального элемента
-void findMinIndex(int* begin, int* end,int* &minIndex);
+void findMinIndex(int* begin, int* end, int*& minIndex);
 int task2(int* begin, int* end);
 
 // TASK3 Упорядочить по возрастанию отдельно элементы, стоящие на четных местах, и элементы, стоящие на 
@@ -46,12 +45,14 @@ int main()
 		mainChoice = main_menu();
 		if (mainChoice != 4)
 		{
+			std::cout << "\nВыбран пункт меню: '" << mainChoice << "'\n";
 			short choice;
 			do
 			{
 				choice = choice_menu();
 				if (choice != 4)
 				{
+					std::cout << "\nВыбран пункт меню: '" << choice << "'\n";
 					int size;
 					std::ifstream file("data.txt");
 					preamb(choice, file, size);
@@ -62,15 +63,13 @@ int main()
 						ending(size);
 						fill(arr, size, std::cin);
 					}
+					else if (choice == 2)
+					{
+						fill(arr, size, file);
+						print(arr, size, "\nЭлементы массива: ");
 
-					if (choice == 2)
-					{	
-							fill(arr, size, file);
-							print(arr, size, "\nЭлементы массива: ");
-						
 					}
-
-					if (choice == 3)
+					else if (choice == 3)
 					{
 						int a, b;
 						std::cout << "\nВведите диапазон рандома(от A до B): ";
@@ -80,7 +79,7 @@ int main()
 						fill(arr, arr + size, a, b);
 						print(arr, size, "\nЭлементы массива: ");
 					}
-					
+
 					if (mainChoice == 1)
 					{
 						int product;
@@ -90,21 +89,21 @@ int main()
 						}
 						else
 							std::cout << "\nНет положительных элементов! " << '\n';
-						free_memory(arr);
 					}
-
-					if (mainChoice == 2)
+					else if (mainChoice == 2)
 					{
 						std::cout << "\nСумма заданных элементов: " << task2(arr, arr + size) << '\n';
 					}
-
-					if (mainChoice == 3)
+					else if (mainChoice == 3)
 					{
 						task3(arr, size);
 						print(arr, size, "\nОтсортированные по данному правилу элементы массива: ");
 					}
+					free_memory(arr);
 				}
 			} while (choice != 4);
+			std::cout << "\nВыбран пункт меню: '" << choice << "'\n";
+
 		}
 	} while (mainChoice != 4);
 
@@ -127,21 +126,19 @@ bool task1(int* begin, int* end, int& product, std::function<bool(int)> predicat
 
 void findMinIndex(int* begin, int* end, int*& minIndex)
 {
-	bool isFind = false;
 	for (int* ptr = begin; ptr < end; ++ptr)
 	{
 		if (*ptr < *minIndex)
 		{
 			minIndex = ptr;
 		}
-
 	}
 }
 
 int task2(int* begin, int* end)
 {
 	int sum = 0;
-	int* minIndex=begin;
+	int* minIndex = begin;
 	findMinIndex(begin, end, minIndex);
 	for (int* ptr = begin; ptr < minIndex; ++ptr)
 	{
@@ -156,9 +153,8 @@ void task3(int* arr, int size)
 
 	do
 	{
-		size = size - 1;
 		isSorted = true;
-		for (int i = 0; i < size - 1; i++)
+		for (int i = 0; i < size - 2; i++)
 		{
 			if (arr[i] > arr[i + 2])
 			{
@@ -210,16 +206,22 @@ int choice_menu()
 	return choice;
 }
 
-int check_file(std::ifstream& file)
+bool isFileWithContent(std::ifstream& file)
 {
 	int result = 1;
 	if (!file)
+	{
 		result = -1;
+		std::cout << "\nФайл не найден!\n";
+	}
 	else
 		if (file.peek() == EOF) //==-1
+		{
 			result = 0;
+			std::cout << "\nФайл пустой!\n";
+		}
 
-	return result;
+	return result == 1;
 }
 
 void ending(int n)
@@ -247,26 +249,11 @@ void ending(int n)
 	}
 }
 
-int GetRandomInInterval(int a, int b)
+int getRandomInInterval(int a, int b)
 {
 	return a + rand() % (b - a + 1);
 }
 
-bool fileInput(std::ifstream& file)
-{
-	bool ConditionFlag = true;
-	if (check_file(file) == -1)
-	{
-		std::cout << "\nФайл не найден!\n";
-		ConditionFlag = false;
-	}
-	if (check_file(file) == 0)
-	{
-		std::cout << "\nФайл пустой!\n";
-		ConditionFlag = false;
-	}
-	return ConditionFlag;
-}
 
 int* memory_allocation(int size)
 {
@@ -298,7 +285,7 @@ void preamb(short choice, std::ifstream& file, int& size)
 		std::cin.ignore(std::cin.rdbuf()->in_avail());
 	}
 	else
-		if (choice == 2 && fileInput(file))
+		if (choice == 2 && isFileWithContent(file))
 		{
 			file >> size;
 		}
@@ -321,9 +308,9 @@ void fill(int* arr, int size, std::istream& stream)
 
 void fill(int* begin, int* end, int a, int b)
 {
-	for (int* ptr{ begin }; ptr != end; ++ptr)
+	for (int* ptr{ begin }; ptr < end; ++ptr)
 	{
-		*ptr = GetRandomInInterval(a, b);
+		*ptr = getRandomInInterval(a, b);
 	}
 }
 
