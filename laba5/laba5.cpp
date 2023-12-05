@@ -11,6 +11,7 @@ void Read_and_check(T& x, std::istream& stream, Predicat condition, const char* 
 int GetRandomInInterval(int a, int b);
 bool fileInput(std::ifstream& file);
 void print(int* arr, int size, const char* message);
+void preamb(short choice, std::ifstream& file, int& size);
 
 // Функции связанные с памятью, выделяемой для массивов
 int* memory_allocation(int size);
@@ -51,121 +52,56 @@ int main()
 				choice = choice_menu();
 				if (choice != 4)
 				{
+					int size;
+					std::ifstream file("data.txt");
+					preamb(choice, file, size);
+					int* arr = memory_allocation(size);
+
 					if (choice == 1)
 					{
-						std::cout << " \nВведите количество элементов: ";
-						int size;
-						Read_and_check(size, std::cin, [](int x) {return x > 0; }, "");
-						std::cin.ignore(std::cin.rdbuf()->in_avail());
-
-						int* arr = memory_allocation(size);
 						ending(size);
 						fill(arr, size, std::cin);
-
-						if (mainChoice == 1)
-						{
-							int product;
-							if (task1(arr, arr + size, product, [](int x) {return x > 0; }))
-							{
-								std::cout << "\nПроизведение положительных элементов: " << product << '\n';
-							}
-							else
-								std::cout << "\nНет положительных элементов! " << '\n';
-							free_memory(arr);
-						}
-
-						if (mainChoice == 2)
-						{
-							std::cout << "\nСумма заданных элементов: " << task2(arr, arr + size) << '\n';
-						}
-
-						if (mainChoice == 3)
-						{
-							task3(arr, size);
-							print(arr, size, "\nОтсортированные по данному правилу элементы массива: ");
-						}
 					}
 
 					if (choice == 2)
-					{
-						std::ifstream file("data.txt");
-						if (fileInput(file))
-						{
-							int size;
-							file >> size;
-
-							int* arr = memory_allocation(size);
+					{	
 							fill(arr, size, file);
 							print(arr, size, "\nЭлементы массива: ");
-
-							if (mainChoice == 1)
-							{
-								int product;
-								if (task1(arr, arr + size, product, [](int x) {return x > 0; }))
-								{
-									std::cout << "\nПроизведение положительных элементов: " << product << '\n';
-								}
-								else
-									std::cout << "\nНет положительных элементов! " << '\n';
-								free_memory(arr);
-							}
-
-							if (mainChoice == 2)
-							{
-								std::cout << "\nСумма заданных элементов: " << task2(arr, arr + size) << '\n';
-								free_memory(arr);
-							}
-
-							if (mainChoice == 3)
-							{
-								task3(arr, size);
-								print(arr, size, "\nОтсортированные по данному правилу элементы массива: ");
-								free_memory(arr);
-							}
-						}
+						
 					}
 
 					if (choice == 3)
 					{
-						int size;
-						std::cout << "\nВведите количество случайных слагаемых: ";
-						Read_and_check(size, std::cin, [](int x) {return x > 0; }, "\n-> ");
-						std::cin.ignore(std::cin.rdbuf()->in_avail());
-
 						int a, b;
 						std::cout << "\nВведите диапазон рандома(от A до B): ";
 						Read_and_check(a, std::cin, [](int x) {return true; }, "\n-> ");
 						Read_and_check(b, std::cin, [](int x) {return true; }, "");
 						std::cin.ignore(std::cin.rdbuf()->in_avail());
-
-						int* arr = memory_allocation(size);
 						fill(arr, arr + size, a, b);
 						print(arr, size, "\nЭлементы массива: ");
-
-						if (mainChoice == 1)
+					}
+					
+					if (mainChoice == 1)
+					{
+						int product;
+						if (task1(arr, arr + size, product, [](int x) {return x > 0; }))
 						{
-							int product;
-							if (task1(arr, arr + size, product, [](int x) {return x > 0; }))
-							{
-								std::cout << "\nПроизведение положительных элементов: " << product << '\n';
-							}
-							else
-								std::cout << "\nНет положительных элементов! " << '\n';
-							free_memory(arr);
+							std::cout << "\nПроизведение положительных элементов: " << product << '\n';
 						}
+						else
+							std::cout << "\nНет положительных элементов! " << '\n';
+						free_memory(arr);
+					}
 
-						if (mainChoice == 2)
-						{
-							std::cout << "\nСумма заданных элементов: " << task2(arr, arr + size) << '\n';
-							free_memory(arr);
-						}
+					if (mainChoice == 2)
+					{
+						std::cout << "\nСумма заданных элементов: " << task2(arr, arr + size) << '\n';
+					}
 
-						if (mainChoice == 3)
-						{
-							task3(arr, size);
-							print(arr, size, "\nОтсортированные по данному правилу элементы массива: ");
-							free_memory(arr);
-						}
+					if (mainChoice == 3)
+					{
+						task3(arr, size);
+						print(arr, size, "\nОтсортированные по данному правилу элементы массива: ");
 					}
 				}
 			} while (choice != 4);
@@ -351,6 +287,27 @@ void print(int* arr, int size, const char* message)
 		std::cout << arr[i] << ' ';
 	}
 	std::cout << '\n';
+}
+
+void preamb(short choice, std::ifstream& file, int& size)
+{
+	if (choice == 1)
+	{
+		std::cout << " \nВведите количество элементов: ";
+		Read_and_check(size, std::cin, [](int x) {return x > 0; }, "");
+		std::cin.ignore(std::cin.rdbuf()->in_avail());
+	}
+	else
+		if (choice == 2 && fileInput(file))
+		{
+			file >> size;
+		}
+		else
+		{
+			std::cout << "\nВведите количество случайных слагаемых: ";
+			Read_and_check(size, std::cin, [](int x) {return x > 0; }, "\n-> ");
+			std::cin.ignore(std::cin.rdbuf()->in_avail());
+		}
 }
 
 void fill(int* arr, int size, std::istream& stream)
