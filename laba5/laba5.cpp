@@ -3,26 +3,35 @@
 #include<Windows.h>
 #include<functional> 
 
+// Вспомогателььные функции
 int check_file(std::ifstream& file);
 void ending(int n);
 template <typename T, typename Predicat>
 void Read_and_check(T& x, std::istream& stream, Predicat condition, const char* message);
 int GetRandomInInterval(int a, int b);
 bool fileInput(std::ifstream& file);
+void print(int* arr, int size, const char* message);
 
+// Функции связанные с памятью, выделяемой для массивов
 int* memory_allocation(int size);
 void free_memory(int*& arr);
-void print(int* arr, int size);
 
+//Функции заполняющие массив элементами из cin/file или random
 void fill(int* arr, int size, std::istream& stream = std::cin);
 void fill(int* begin, int* end, int A, int B);
 
+// TASK1 Вычислить произведение положительных элементов массива
 bool task1(int* arr, int size, int& product, std::function<bool(int)> predicate);
 
+// TASK2 Вычислить сумму элементов массива, расположенных до первого минимального элемента
 int findMinIndex(int* arr, int size);
 int task2(int* arr, int size);
 
+// TASK3 Упорядочить по возрастанию отдельно элементы, стоящие на четных местах, и элементы, стоящие на 
+// нечетных местах методом простого обмена
+void task3(int* arr, int size);
 
+//Менюшки
 int main_menu();
 int choice_menu();
 
@@ -67,12 +76,13 @@ int main()
 
 						if (mainChoice == 2)
 						{
-							std::cout << "\nСумма заданных элементов: " << task2(arr, size)<<'\n';
+							std::cout << "\nСумма заданных элементов: " << task2(arr, size) << '\n';
 						}
 
 						if (mainChoice == 3)
 						{
-
+							task3(arr, size);
+							print(arr, size, "\nОтсортированные по данному правилу элементы массива: ");
 						}
 					}
 
@@ -83,9 +93,10 @@ int main()
 						{
 							int size;
 							file >> size;
+
 							int* arr = memory_allocation(size);
 							fill(arr, size, file);
-							print(arr, size);
+							print(arr, size, "\nЭлементы массива: ");
 
 							if (mainChoice == 1)
 							{
@@ -102,11 +113,14 @@ int main()
 							if (mainChoice == 2)
 							{
 								std::cout << "\nСумма заданных элементов: " << task2(arr, size) << '\n';
+								free_memory(arr);
 							}
 
 							if (mainChoice == 3)
 							{
-
+								task3(arr, size);
+								print(arr, size, "\nОтсортированные по данному правилу элементы массива: ");
+								free_memory(arr);
 							}
 						}
 					}
@@ -125,7 +139,7 @@ int main()
 
 						int* arr = memory_allocation(size);
 						fill(arr, arr + size, a, b);
-						print(arr, size);
+						print(arr, size, "\nЭлементы массива: ");
 
 						if (mainChoice == 1)
 						{
@@ -142,11 +156,14 @@ int main()
 						if (mainChoice == 2)
 						{
 							std::cout << "\nСумма заданных элементов: " << task2(arr, size) << '\n';
+							free_memory(arr);
 						}
 
 						if (mainChoice == 3)
 						{
-
+							task3(arr, size);
+							print(arr, size, "\nОтсортированные по данному правилу элементы массива: ");
+							free_memory(arr);
 						}
 					}
 				}
@@ -174,7 +191,7 @@ bool task1(int* arr, int size, int& product, std::function<bool(int)> predicate)
 int findMinIndex(int* arr, int size)
 {
 	int i = 0;
-	int minIndex=0;
+	int minIndex = 0;
 	bool isFind = false;
 	for (int i = 0; i < size; ++i)
 	{
@@ -182,7 +199,7 @@ int findMinIndex(int* arr, int size)
 		{
 			minIndex = i;
 		}
-		
+
 	}
 	return minIndex;
 }
@@ -190,11 +207,32 @@ int findMinIndex(int* arr, int size)
 int task2(int* arr, int size)
 {
 	int sum = 0;
-	for (int i = 0; i < findMinIndex(arr,size); ++i)
+	for (int i = 0; i < findMinIndex(arr, size); ++i)
 	{
 		sum = sum + *(arr + i);
 	}
 	return sum;
+}
+
+void task3(int* arr, int size)
+{
+	bool isSorted;
+
+	do
+	{
+		size = size - 1;
+		isSorted = true;
+		for (int i = 0; i < size - 1; i++)
+		{
+			if (arr[i] > arr[i + 2])
+			{
+				int temp = arr[i];
+				arr[i] = arr[i + 2];
+				arr[i + 2] = temp;
+				isSorted = false;
+			}
+		}
+	} while (!isSorted);
 }
 
 int main_menu()
@@ -305,9 +343,9 @@ void free_memory(int*& arr)
 	arr = nullptr;
 }
 
-void print(int* arr, int size)
+void print(int* arr, int size, const char* message)
 {
-	std::cout << "\nЭлементы массива: ";
+	std::cout << message;
 	for (int i = 0; i < size; i++)
 	{
 		std::cout << arr[i] << ' ';

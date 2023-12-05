@@ -128,6 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="laba5.cpp" />
+    <ClCompile Include="task1_universal.txt" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data.txt" />
