@@ -21,11 +21,11 @@ void fill(int* arr, int size, std::istream& stream = std::cin);
 void fill(int* begin, int* end, int A, int B);
 
 // TASK1 Вычислить произведение положительных элементов массива
-bool task1(int* arr, int size, int& product, std::function<bool(int)> predicate);
+bool task1(int* begin, int* end, int& product, std::function<bool(int)> predicate);
 
 // TASK2 Вычислить сумму элементов массива, расположенных до первого минимального элемента
-int findMinIndex(int* arr, int size);
-int task2(int* arr, int size);
+void findMinIndex(int* begin, int* end,int* &minIndex);
+int task2(int* begin, int* end);
 
 // TASK3 Упорядочить по возрастанию отдельно элементы, стоящие на четных местах, и элементы, стоящие на 
 // нечетных местах методом простого обмена
@@ -65,7 +65,7 @@ int main()
 						if (mainChoice == 1)
 						{
 							int product;
-							if (task1(arr, size, product, [](int x) {return x > 0; }))
+							if (task1(arr, arr + size, product, [](int x) {return x > 0; }))
 							{
 								std::cout << "\nПроизведение положительных элементов: " << product << '\n';
 							}
@@ -76,7 +76,7 @@ int main()
 
 						if (mainChoice == 2)
 						{
-							std::cout << "\nСумма заданных элементов: " << task2(arr, size) << '\n';
+							std::cout << "\nСумма заданных элементов: " << task2(arr, arr + size) << '\n';
 						}
 
 						if (mainChoice == 3)
@@ -101,7 +101,7 @@ int main()
 							if (mainChoice == 1)
 							{
 								int product;
-								if (task1(arr, size, product, [](int x) {return x > 0; }))
+								if (task1(arr, arr + size, product, [](int x) {return x > 0; }))
 								{
 									std::cout << "\nПроизведение положительных элементов: " << product << '\n';
 								}
@@ -112,7 +112,7 @@ int main()
 
 							if (mainChoice == 2)
 							{
-								std::cout << "\nСумма заданных элементов: " << task2(arr, size) << '\n';
+								std::cout << "\nСумма заданных элементов: " << task2(arr, arr + size) << '\n';
 								free_memory(arr);
 							}
 
@@ -136,6 +136,7 @@ int main()
 						std::cout << "\nВведите диапазон рандома(от A до B): ";
 						Read_and_check(a, std::cin, [](int x) {return true; }, "\n-> ");
 						Read_and_check(b, std::cin, [](int x) {return true; }, "");
+						std::cin.ignore(std::cin.rdbuf()->in_avail());
 
 						int* arr = memory_allocation(size);
 						fill(arr, arr + size, a, b);
@@ -144,7 +145,7 @@ int main()
 						if (mainChoice == 1)
 						{
 							int product;
-							if (task1(arr, size, product, [](int x) {return x > 0; }))
+							if (task1(arr, arr + size, product, [](int x) {return x > 0; }))
 							{
 								std::cout << "\nПроизведение положительных элементов: " << product << '\n';
 							}
@@ -155,7 +156,7 @@ int main()
 
 						if (mainChoice == 2)
 						{
-							std::cout << "\nСумма заданных элементов: " << task2(arr, size) << '\n';
+							std::cout << "\nСумма заданных элементов: " << task2(arr, arr + size) << '\n';
 							free_memory(arr);
 						}
 
@@ -173,43 +174,42 @@ int main()
 
 }
 
-bool task1(int* arr, int size, int& product, std::function<bool(int)> predicate)
+bool task1(int* begin, int* end, int& product, std::function<bool(int)> predicate)
 {
 	bool isFind = false;
 	product = 1;
-	for (int i = 0; i < size; ++i)
+	for (int* ptr = begin; ptr < end; ++ptr)
 	{
-		if (predicate(*(arr + i)))
+		if (predicate(*ptr))
 		{
-			product = *(arr + i) * product;
+			product = *ptr * product;
 			isFind = true;
 		}
 	}
 	return isFind;
 }
 
-int findMinIndex(int* arr, int size)
+void findMinIndex(int* begin, int* end, int*& minIndex)
 {
-	int i = 0;
-	int minIndex = 0;
 	bool isFind = false;
-	for (int i = 0; i < size; ++i)
+	for (int* ptr = begin; ptr < end; ++ptr)
 	{
-		if (*(arr + i) < *(arr + minIndex))
+		if (*ptr < *minIndex)
 		{
-			minIndex = i;
+			minIndex = ptr;
 		}
 
 	}
-	return minIndex;
 }
 
-int task2(int* arr, int size)
+int task2(int* begin, int* end)
 {
 	int sum = 0;
-	for (int i = 0; i < findMinIndex(arr, size); ++i)
+	int* minIndex=begin;
+	findMinIndex(begin, end, minIndex);
+	for (int* ptr = begin; ptr < minIndex; ++ptr)
 	{
-		sum = sum + *(arr + i);
+		sum = sum + *ptr;
 	}
 	return sum;
 }
@@ -359,6 +359,7 @@ void fill(int* arr, int size, std::istream& stream)
 	{
 		Read_and_check(arr[i], stream, [](int x) {return true; }, "");
 	}
+	std::cin.ignore(std::cin.rdbuf()->in_avail());
 }
 
 void fill(int* begin, int* end, int a, int b)
@@ -379,6 +380,5 @@ void Read_and_check(T& x, std::istream& stream, Predicat condition, const char* 
 		std::cin.clear();
 		std::cin.ignore(std::cin.rdbuf()->in_avail());
 		std::cout << message;
-
 	}
 }

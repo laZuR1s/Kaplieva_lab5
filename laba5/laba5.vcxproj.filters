@@ -18,9 +18,6 @@
     <ClCompile Include="laba5.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="task1_universal.txt">
-      <Filter>Файлы ресурсов</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="data.txt">
