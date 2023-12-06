@@ -3,7 +3,7 @@
 #include<Windows.h>
 #include<functional> 
 
-// Вспомогателььные функции
+// Вспомогательные функции
 bool isFileWithContent(std::ifstream& file);
 void ending(int n);
 template <typename T, typename Predicat>
@@ -24,8 +24,8 @@ void fill(int* begin, int* end, int A, int B);
 bool task1(int* begin, int* end, int& product, std::function<bool(int)> predicate);
 
 // TASK2 Вычислить сумму элементов массива, расположенных до первого минимального элемента
-void findMinIndex(int* begin, int* end, int*& minIndex);
-int task2(int* begin, int* end);
+int* findMinIndex(int* begin, int* end);
+int task2(int* begin, int* minIndex);
 
 // TASK3 Упорядочить по возрастанию отдельно элементы, стоящие на четных местах, и элементы, стоящие на 
 // нечетных местах методом простого обмена
@@ -58,18 +58,21 @@ int main()
 					preamb(choice, file, size);
 					int* arr = memory_allocation(size);
 
-					if (choice == 1)
+					switch (choice)
+					{
+					case 1:
 					{
 						ending(size);
 						fill(arr, size, std::cin);
+						break;
 					}
-					else if (choice == 2)
+					case 2:
 					{
 						fill(arr, size, file);
 						print(arr, size, "\nЭлементы массива: ");
-
+						break;
 					}
-					else if (choice == 3)
+					default:
 					{
 						int a, b;
 						std::cout << "\nВведите диапазон рандома(от A до B): ";
@@ -79,8 +82,11 @@ int main()
 						fill(arr, arr + size, a, b);
 						print(arr, size, "\nЭлементы массива: ");
 					}
+					}
 
-					if (mainChoice == 1)
+					switch (mainChoice)
+					{
+					case 1:
 					{
 						int product;
 						if (task1(arr, arr + size, product, [](int x) {return x > 0; }))
@@ -89,15 +95,22 @@ int main()
 						}
 						else
 							std::cout << "\nНет положительных элементов! " << '\n';
+						break;
 					}
-					else if (mainChoice == 2)
+					case 2:
 					{
-						std::cout << "\nСумма заданных элементов: " << task2(arr, arr + size) << '\n';
+						int* minIndex = findMinIndex(arr, arr + size);
+						if (minIndex == arr)
+							std::cout << "\nПустой диапазон!\n";
+						else
+							std::cout << "\nСумма заданных элементов: " << task2(arr, minIndex) << '\n';
+						break;
 					}
-					else if (mainChoice == 3)
+					default:
 					{
 						task3(arr, size);
 						print(arr, size, "\nОтсортированные по данному правилу элементы массива: ");
+					}
 					}
 					free_memory(arr);
 				}
@@ -124,8 +137,9 @@ bool task1(int* begin, int* end, int& product, std::function<bool(int)> predicat
 	return isFind;
 }
 
-void findMinIndex(int* begin, int* end, int*& minIndex)
+int* findMinIndex(int* begin, int* end)
 {
+	int* minIndex = begin;
 	for (int* ptr = begin; ptr < end; ++ptr)
 	{
 		if (*ptr < *minIndex)
@@ -133,13 +147,12 @@ void findMinIndex(int* begin, int* end, int*& minIndex)
 			minIndex = ptr;
 		}
 	}
+	return minIndex;
 }
 
-int task2(int* begin, int* end)
+int task2(int* begin, int* minIndex)
 {
 	int sum = 0;
-	int* minIndex = begin;
-	findMinIndex(begin, end, minIndex);
 	for (int* ptr = begin; ptr < minIndex; ++ptr)
 	{
 		sum = sum + *ptr;
@@ -278,23 +291,28 @@ void print(int* arr, int size, const char* message)
 
 void preamb(short choice, std::ifstream& file, int& size)
 {
-	if (choice == 1)
+	switch (choice)
+	{
+	case 1:
 	{
 		std::cout << " \nВведите количество элементов: ";
 		Read_and_check(size, std::cin, [](int x) {return x > 0; }, "");
 		std::cin.ignore(std::cin.rdbuf()->in_avail());
+		break;
 	}
-	else
-		if (choice == 2 && isFileWithContent(file))
-		{
+	case 2:
+	{
+		if (isFileWithContent(file))
 			file >> size;
-		}
-		else
-		{
-			std::cout << "\nВведите количество случайных слагаемых: ";
-			Read_and_check(size, std::cin, [](int x) {return x > 0; }, "\n-> ");
-			std::cin.ignore(std::cin.rdbuf()->in_avail());
-		}
+		break;
+	}
+	default:
+	{
+		std::cout << "\nВведите количество случайных слагаемых: ";
+		Read_and_check(size, std::cin, [](int x) {return x > 0; }, "\n-> ");
+		std::cin.ignore(std::cin.rdbuf()->in_avail());
+	}
+	}
 }
 
 void fill(int* arr, int size, std::istream& stream)
